@@ -21,41 +21,10 @@ DOC_FILES=                              \
 
 EXTRA_DIST=                             \
         $(AUX_DIST_GEN)                 \
-        $(CMAKE_FILES)                  \
-        $(DOC_FILES)                    \
-        NOT-BUGS.md                     \
-        README.Strife.md                \
-        .lvimrc                         \
-        HACKING.md                      \
-        TODO.md                         \
-        rpm.spec                        \
-        win32/win_opendir.c             \
-        win32/win_opendir.h
-
-doomdocsdir = ${docdir}/../${PROGRAM_PREFIX}doom
-doomdocs_DATA = $(DOC_FILES) NOT-BUGS.md
-
-#hereticdocsdir = ${docdir}/../${PROGRAM_PREFIX}heretic
-#hereticdocs_DATA = $(DOC_FILES)
-
-#hexendocsdir = ${docdir}/../${PROGRAM_PREFIX}hexen
-#hexendocs_DATA = $(DOC_FILES)
-
-#strifedocsdir = ${docdir}/../${PROGRAM_PREFIX}strife
-#strifedocs_DATA = $(DOC_FILES) README.Strife.md
+        $(CMAKE_FILES)
 
 MAINTAINERCLEANFILES =  $(AUX_DIST_GEN)
 
-SUBDIRS=textscreen opl pcsound data src man
+SUBDIRS=textscreen opl pcsound data src
 
-DIST_SUBDIRS=pkg $(SUBDIRS)
-
-if HAVE_DOC
-
-INSTALL : man/INSTALL.template man/simplecpp
-	./man/simplecpp -DDOOM -DHERETIC -DHEXEN -DSTRIFE \
-            -DLONG_GAME_NAME="@PACKAGE_SHORTNAME@ Doom" \
-            -DLONG_EXE_NAME="@PROGRAM_PREFIX@doom" \
-	                < man/INSTALL.template > $@
-
-endif
+DIST_SUBDIRS=$(SUBDIRS)

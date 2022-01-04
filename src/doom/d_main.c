@@ -582,9 +582,14 @@ void D_DoomLoop (void)
                " may cause demos and network games to get out of sync.\n");
     }
 
-    // [crispy] no need to write a demo header in demo continue mode
-    if (demorecording && gameaction != ga_playdemo)
-	G_BeginRecording ();
+    if (demorecording) G_BeginRecording();
+
+    // this needs to be started before video initialization otherwise emscriptem will complaint with
+    // "emscripten_set_main_loop_timing: Cannot set timing mode for main loop since a main loop does not exist!"
+    // see https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop
+    // and https://tristanpenman.com/blog/posts/2018/01/08/porting-an-asteroids-clone-to-javascript/#main-loop
+    printf("Running emscripten_set_main_loop()\n");
+    emscripten_set_main_loop(D_RunFrame, 0, 0);
 
     main_loop_started = true;
 
@@ -606,10 +611,6 @@ void D_DoomLoop (void)
         wipegamestate = gamestate;
     }
 
-    while (1)
-    {
-        D_RunFrame();
-    }
 }
 
 
@@ -617,10 +618,9 @@ void D_DoomLoop (void)
 //
 //  DEMO LOOP
 //
-int             demosequence;
-int             pagetic;
-const char                    *pagename;
-
+int demosequence;
+int pagetic;
+const char *pagename;
 
 //
 // D_PageTicker
@@ -647,21 +647,17 @@ void D_PageDrawer (void)
 // D_AdvanceDemo
 // Called after each demo or intro demosequence finishes
 //
-void D_AdvanceDemo (void)
-{
-    advancedemo = true;
-}
-
+void D_AdvanceDemo(void) { advancedemo = true; }
 
 //
 // This cycles through the demo sequences.
 // FIXME - version dependend demo numbers?
 //
-void D_DoAdvanceDemo (void)
+void D_DoAdvanceDemo(void)
 {
-    players[consoleplayer].playerstate = PST_LIVE;  // not reborn
+    players[consoleplayer].playerstate = PST_LIVE; // not reborn
     advancedemo = false;
-    usergame = false;               // no save / end game here
+    usergame = false; // no save / end game here
     paused = false;
     gameaction = ga_nothing;
     // [crispy] update the "singleplayer" variable
@@ -753,12 +749,12 @@ void D_DoAdvanceDemo (void)
 //
 // D_StartTitle
 //
-void D_StartTitle (void)
+void D_StartTitle(void)
 {
     gameaction = ga_nothing;
     automapactive = false; // [crispy] clear overlaid automap remainings
     demosequence = -1;
-    D_AdvanceDemo ();
+    D_AdvanceDemo();
 }
 
 // Strings for dehacked replacements of the startup banner
@@ -766,8 +762,7 @@ void D_StartTitle (void)
 // These are from the original source: some of them are perhaps
 // not used in any dehacked patches
 
-static const char *banners[] =
-{
+static const char *banners[] = {
     // doom2.wad
     "                         "
     "DOOM 2: Hell on Earth v%i.%i"
