@@ -84,6 +84,7 @@ extern int key_arti_shadowsphere;
 extern int key_arti_wings;
 extern int key_arti_torch;
 extern int key_arti_morph;
+extern int key_fullscreen;
 
 extern int key_arti_all;
 extern int key_arti_health;

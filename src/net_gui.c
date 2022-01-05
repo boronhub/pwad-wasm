@@ -17,9 +17,9 @@
 //    start the game.
 //   
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include "config.h"
 #include "doomkeys.h"
@@ -34,6 +34,7 @@
 #include "net_gui.h"
 #include "net_query.h"
 #include "net_server.h"
+#include <emscripten/websocket.h>
 
 #include "textscreen.h"
 
@@ -56,10 +57,7 @@ static void EscapePressed(TXT_UNCAST_ARG(widget), void *unused)
     I_Quit();
 }
 
-static void StartGame(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
-{
-    NET_CL_LaunchGame();
-}
+static void StartGame(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused)) { NET_CL_LaunchGame(); }
 
 static void OpenWaitDialog(void)
 {
@@ -75,8 +73,7 @@ static void OpenWaitDialog(void)
     TXT_SignalConnect(cancel, "pressed", EscapePressed, NULL);
 
     TXT_SetWindowAction(window, TXT_HORIZ_LEFT, cancel);
-    TXT_SetWindowPosition(window, TXT_HORIZ_CENTER, TXT_VERT_BOTTOM,
-                                  TXT_SCREEN_W / 2, TXT_SCREEN_H - 9);
+    TXT_SetWindowPosition(window, TXT_HORIZ_CENTER, TXT_VERT_BOTTOM, TXT_SCREEN_W / 2, TXT_SCREEN_H - 9);
 
     old_max_players = 0;
 }
@@ -99,8 +96,7 @@ static void BuildWindow(void)
 
     // Player labels
 
-    for (i = 0; i < net_client_wait_data.max_players; ++i)
-    {
+    for (i = 0; i < net_client_wait_data.max_players; ++i) {
         M_snprintf(buf, sizeof(buf), " %i. ", i + 1);
         TXT_AddWidget(table, TXT_NewLabel(buf));
         player_labels[i] = TXT_NewLabel("");
@@ -124,62 +120,48 @@ static void UpdateGUI(void)
     // contents of the window. This includes when the first
     // waiting data packet is received.
 
-    if (net_client_received_wait_data)
-    {
-        if (net_client_wait_data.max_players != old_max_players)
-        {
+    if (net_client_received_wait_data) {
+        if (net_client_wait_data.max_players != old_max_players) {
             BuildWindow();
         }
     }
-    else
-    {
+    else {
         return;
     }
 
-    for (i = 0; i < net_client_wait_data.max_players; ++i)
-    {
+    for (i = 0; i < net_client_wait_data.max_players; ++i) {
         txt_color_t color = TXT_COLOR_BRIGHT_WHITE;
 
-        if ((signed) i == net_client_wait_data.consoleplayer)
-        {
+        if ((signed)i == net_client_wait_data.consoleplayer) {
             color = TXT_COLOR_YELLOW;
         }
 
         TXT_SetFGColor(player_labels[i], color);
         TXT_SetFGColor(ip_labels[i], color);
 
-        if (i < net_client_wait_data.num_players)
-        {
-            TXT_SetLabel(player_labels[i],
-                         net_client_wait_data.player_names[i]);
-            TXT_SetLabel(ip_labels[i],
-                         net_client_wait_data.player_addrs[i]);
+        if (i < net_client_wait_data.num_players) {
+            TXT_SetLabel(player_labels[i], net_client_wait_data.player_names[i]);
+            TXT_SetLabel(ip_labels[i], net_client_wait_data.player_addrs[i]);
         }
-        else
-        {
+        else {
             TXT_SetLabel(player_labels[i], "");
             TXT_SetLabel(ip_labels[i], "");
         }
     }
 
-    if (net_client_wait_data.num_drones > 0)
-    {
-        M_snprintf(buf, sizeof(buf), " (+%i observer clients)",
-                   net_client_wait_data.num_drones);
+    if (net_client_wait_data.num_drones > 0) {
+        M_snprintf(buf, sizeof(buf), " (+%i observer clients)", net_client_wait_data.num_drones);
         TXT_SetLabel(drone_label, buf);
     }
-    else
-    {
+    else {
         TXT_SetLabel(drone_label, "");
     }
 
-    if (net_client_wait_data.is_controller)
-    {
+    if (net_client_wait_data.is_controller) {
         startgame = TXT_NewWindowAction(' ', "Start game");
         TXT_SignalConnect(startgame, "pressed", StartGame, NULL);
     }
-    else
-    {
+    else {
         startgame = NULL;
     }
 
@@ -241,8 +223,7 @@ static void PrintSHA1Digest(const char *s, const byte *digest)
 
     printf("%s: ", s);
 
-    for (i=0; i<sizeof(sha1_digest_t); ++i)
-    {
+    for (i = 0; i < sizeof(sha1_digest_t); ++i) {
         printf("%02x", digest[i]);
     }
 
@@ -263,41 +244,30 @@ static void CheckSHA1Sums(void)
     txt_window_t *window;
     txt_window_action_t *cont_button;
 
-    if (!net_client_received_wait_data || had_warning)
-    {
+    if (!net_client_received_wait_data || had_warning) {
         return;
     }
 
-    correct_wad = memcmp(net_local_wad_sha1sum,
-                         net_client_wait_data.wad_sha1sum, 
-                         sizeof(sha1_digest_t)) == 0;
-    correct_deh = memcmp(net_local_deh_sha1sum,
-                         net_client_wait_data.deh_sha1sum, 
-                         sizeof(sha1_digest_t)) == 0;
+    correct_wad = memcmp(net_local_wad_sha1sum, net_client_wait_data.wad_sha1sum, sizeof(sha1_digest_t)) == 0;
+    correct_deh = memcmp(net_local_deh_sha1sum, net_client_wait_data.deh_sha1sum, sizeof(sha1_digest_t)) == 0;
     same_freedoom = net_client_wait_data.is_freedoom == net_local_is_freedoom;
 
-    if (correct_wad && correct_deh && same_freedoom)
-    {
+    if (correct_wad && correct_deh && same_freedoom) {
         return;
     }
 
-    if (!correct_wad)
-    {
+    if (!correct_wad) {
         printf("Warning: WAD SHA1 does not match server:\n");
         PrintSHA1Digest("Local", net_local_wad_sha1sum);
         PrintSHA1Digest("Server", net_client_wait_data.wad_sha1sum);
     }
 
-    if (!same_freedoom)
-    {
+    if (!same_freedoom) {
         printf("Warning: Mixing Freedoom with non-Freedoom\n");
-        printf("Local: %u  Server: %i\n",
-               net_local_is_freedoom, 
-               net_client_wait_data.is_freedoom);
+        printf("Local: %u  Server: %i\n", net_local_is_freedoom, net_client_wait_data.is_freedoom);
     }
 
-    if (!correct_deh)
-    {
+    if (!correct_deh) {
         printf("Warning: Dehacked SHA1 does not match server:\n");
         PrintSHA1Digest("Local", net_local_deh_sha1sum);
         PrintSHA1Digest("Server", net_client_wait_data.deh_sha1sum);
@@ -312,45 +282,35 @@ static void CheckSHA1Sums(void)
     TXT_SetWindowAction(window, TXT_HORIZ_CENTER, cont_button);
     TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, NULL);
 
-    if (!same_freedoom)
-    {
+    if (!same_freedoom) {
         // If Freedoom and Doom IWADs are mixed, the WAD directory
         // will be wrong, but this is not neccessarily a problem.
         // Display a different message to the WAD directory message.
 
-        if (net_local_is_freedoom)
-        {
-            TXT_AddWidget(window, TXT_NewLabel
-            ("You are using the Freedoom IWAD to play with players\n"
-             "using an official Doom IWAD.  Make sure that you are\n"
-             "playing the same levels as other players.\n"));
+        if (net_local_is_freedoom) {
+            TXT_AddWidget(window, TXT_NewLabel("You are using the Freedoom IWAD to play with players\n"
+                                               "using an official Doom IWAD.  Make sure that you are\n"
+                                               "playing the same levels as other players.\n"));
         }
-        else
-        {
-            TXT_AddWidget(window, TXT_NewLabel
-            ("You are using an official IWAD to play with players\n"
-             "using the Freedoom IWAD.  Make sure that you are\n"
-             "playing the same levels as other players.\n"));
+        else {
+            TXT_AddWidget(window, TXT_NewLabel("You are using an official IWAD to play with players\n"
+                                               "using the Freedoom IWAD.  Make sure that you are\n"
+                                               "playing the same levels as other players.\n"));
         }
     }
-    else if (!correct_wad)
-    {
-        TXT_AddWidget(window, TXT_NewLabel
-            ("Your WAD directory does not match other players in the game.\n"
-             "Check that you have loaded the exact same WAD files as other\n"
-             "players.\n"));
+    else if (!correct_wad) {
+        TXT_AddWidget(window, TXT_NewLabel("Your WAD directory does not match other players in the game.\n"
+                                           "Check that you have loaded the exact same WAD files as other\n"
+                                           "players.\n"));
     }
 
-    if (!correct_deh)
-    {
-        TXT_AddWidget(window, TXT_NewLabel
-            ("Your dehacked signature does not match other players in the\n"
-             "game.  Check that you have loaded the same dehacked patches\n"
-             "as other players.\n"));
+    if (!correct_deh) {
+        TXT_AddWidget(window, TXT_NewLabel("Your dehacked signature does not match other players in the\n"
+                                           "game.  Check that you have loaded the same dehacked patches\n"
+                                           "as other players.\n"));
     }
 
-    TXT_AddWidget(window, TXT_NewLabel
-            ("If you continue, this may cause your game to desync."));
+    TXT_AddWidget(window, TXT_NewLabel("If you continue, this may cause your game to desync."));
 
     had_warning = true;
 }
@@ -367,8 +327,7 @@ static void ParseCommandLineArgs(void)
     //
 
     i = M_CheckParmWithArgs("-nodes", 1);
-    if (i > 0)
-    {
+    if (i > 0) {
         expected_nodes = atoi(myargv[i + 1]);
     }
 }
@@ -377,15 +336,10 @@ static void CheckAutoLaunch(void)
 {
     int nodes;
 
-    if (net_client_received_wait_data
-     && net_client_wait_data.is_controller
-     && expected_nodes > 0)
-    {
-        nodes = net_client_wait_data.num_players
-              + net_client_wait_data.num_drones;
+    if (net_client_received_wait_data && net_client_wait_data.is_controller && expected_nodes > 0) {
+        nodes = net_client_wait_data.num_players + net_client_wait_data.num_drones;
 
-        if (nodes >= expected_nodes)
-        {
+        if (nodes >= expected_nodes) {
             StartGame(NULL, NULL);
             expected_nodes = 0;
         }
@@ -394,8 +348,7 @@ static void CheckAutoLaunch(void)
 
 void NET_WaitForLaunch(void)
 {
-    if (!TXT_Init())
-    {
+    if (!TXT_Init()) {
         fprintf(stderr, "Failed to initialize GUI\n");
         exit(-1);
     }
@@ -413,12 +366,11 @@ void NET_WaitForLaunch(void)
     OpenWaitDialog();
     had_warning = false;
 
-    while (net_waiting_for_launch)
-    {
+    while (net_waiting_for_launch) {
         UpdateGUI();
         CheckAutoLaunch();
         CheckSHA1Sums();
-        CheckMasterStatus();
+        // CheckMasterStatus();
 
         TXT_DispatchEvents();
         TXT_DrawDesktop();
@@ -426,8 +378,7 @@ void NET_WaitForLaunch(void)
         NET_CL_Run();
         NET_SV_Run();
 
-        if (!net_client_connected)
-        {
+        if (!net_client_connected) {
             I_Error("Lost connection to server");
         }
 

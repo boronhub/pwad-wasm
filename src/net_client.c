@@ -271,8 +271,7 @@ static void NET_CL_AdvanceWindow(void)
     {
         // Expand tic diff data into d_net.c structures
 
-        NET_CL_ExpandFullTiccmd(&recvwindow[0].cmd, recvwindow_start,
-                                ticcmds);
+        NET_CL_ExpandFullTiccmd(&recvwindow[0].cmd, recvwindow_start, ticcmds);
         D_ReceiveTic(ticcmds, recvwindow[0].cmd.playeringame);
 
         // Advance the window
@@ -301,10 +300,7 @@ static void NET_CL_Shutdown(void)
     }
 }
 
-void NET_CL_LaunchGame(void)
-{
-    NET_Conn_NewReliable(&client_connection, NET_PACKET_TYPE_LAUNCH);
-}
+void NET_CL_LaunchGame(void) { NET_Conn_NewReliable(&client_connection, NET_PACKET_TYPE_LAUNCH); }
 
 void NET_CL_StartGame(net_gamesettings_t *settings)
 {
@@ -313,11 +309,10 @@ void NET_CL_StartGame(net_gamesettings_t *settings)
     // Start from a ticcmd of all zeros
 
     memset(&last_ticcmd, 0, sizeof(ticcmd_t));
-    
+
     // Send packet
 
-    packet = NET_Conn_NewReliable(&client_connection, 
-                                  NET_PACKET_TYPE_GAMESTART);
+    packet = NET_Conn_NewReliable(&client_connection, NET_PACKET_TYPE_GAMESTART);
 
     NET_WriteSettings(packet, settings);
 }
@@ -743,9 +738,7 @@ static void NET_CL_ParseGameData(net_packet_t *packet)
     NET_Log("client: processing game data packet");
 
     // Read header
-    if (!NET_ReadInt8(packet, &seq)
-     || !NET_ReadInt8(packet, &num_tics))
-    {
+    if (!NET_ReadInt8(packet, &seq) || !NET_ReadInt8(packet, &num_tics)) {
         NET_Log("client: error: failed to read header");
         return;
     }
@@ -755,8 +748,7 @@ static void NET_CL_ParseGameData(net_packet_t *packet)
     // Whatever happens, we now need to send an acknowledgement of our
     // current receive point.
 
-    if (!need_to_acknowledge)
-    {
+    if (!need_to_acknowledge) {
         need_to_acknowledge = true;
         gamedata_recv_time = nowtime;
     }
@@ -1000,9 +992,8 @@ void NET_CL_Run(void)
     {
         return;
     }
-    
-    while (NET_RecvPacket(client_context, &addr, &packet))
-    {
+
+    while (NET_RecvPacket(client_context, &addr, &packet)) {
         // only accept packets from the server
 
         if (addr == server_addr)
@@ -1060,6 +1051,7 @@ static void NET_CL_SendSYN(net_connect_data_t *data)
 }
 
 // Connect to a server
+
 boolean NET_CL_Connect(net_addr_t *addr, net_connect_data_t *data)
 {
     int start_time;
@@ -1114,12 +1106,12 @@ boolean NET_CL_Connect(net_addr_t *addr, net_connect_data_t *data)
             break;
         }
 
-        if (!sent_hole_punch && nowtime - start_time > 2000)
+        /* if (!sent_hole_punch && nowtime - start_time > 2000)
         {
             NET_Log("client: no response to SYN, requesting hole punch");
             NET_RequestHolePunch(client_context, addr);
             sent_hole_punch = true;
-        }
+        } */
 
         // run client code
         NET_CL_Run();
@@ -1131,8 +1123,7 @@ boolean NET_CL_Connect(net_addr_t *addr, net_connect_data_t *data)
         I_Sleep(1);
     }
 
-    if (client_connection.state == NET_CONN_STATE_CONNECTED)
-    {
+    if (client_connection.state == NET_CONN_STATE_CONNECTED) {
         // connected ok!
         NET_Log("client: connected successfully");
         SetRejectReason(NULL);
@@ -1141,8 +1132,7 @@ boolean NET_CL_Connect(net_addr_t *addr, net_connect_data_t *data)
 
         return true;
     }
-    else
-    {
+    else {
         // failed to connect
         NET_Log("client: failed to connect");
         NET_CL_Shutdown();
@@ -1155,8 +1145,7 @@ boolean NET_CL_Connect(net_addr_t *addr, net_connect_data_t *data)
 
 boolean NET_CL_GetSettings(net_gamesettings_t *_settings)
 {
-    if (client_state != CLIENT_STATE_IN_GAME)
-    {
+    if (client_state != CLIENT_STATE_IN_GAME) {
         return false;
     }
 
@@ -1212,9 +1201,15 @@ void NET_CL_Init(void)
     // Try to set from the USER and USERNAME environment variables
     // Otherwise, fallback to "Player"
 
-    if (net_player_name == NULL)
-    {
-        net_player_name = NET_GetRandomPetName();
+    if (net_player_name == NULL) {
+        int i = M_CheckParmWithArgs("-pet", 1);
+        if (i > 0) {
+            net_player_name = myargv[i + 1];
+        }
+        else {
+
+            net_player_name = NET_GetRandomPetName();
+        }
     }
 }
 
@@ -1224,7 +1219,4 @@ void NET_Init(void)
     NET_CL_Init();
 }
 
-void NET_BindVariables(void)
-{
-    M_BindStringVariable("player_name", &net_player_name);
-}
+void NET_BindVariables(void) { M_BindStringVariable("player_name", &net_player_name); }

@@ -55,6 +55,7 @@ set(GAME_SOURCE_FILES
     i_input.c           i_input.h
     i_joystick.c        i_joystick.h
                         i_swap.h
+    i_midipipe.c        i_midipipe.h
     i_musicpack.c
     i_oplmusic.c
     i_pcsound.c

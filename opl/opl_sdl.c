@@ -175,7 +175,6 @@ static void FillBuffer(uint8_t *buffer, unsigned int nsamples)
 static void OPL_Mix_Callback(void *udata, Uint8 *buffer, int len)
 {
     unsigned int filled, buffer_samples;
-    Uint8 *buffer = (Uint8*)stream;
 
     // Repeatedly call the OPL emulator update function until the buffer is
     // full.

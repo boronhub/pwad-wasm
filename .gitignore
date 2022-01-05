@@ -29,6 +29,28 @@ HTIC*.pcx
 HEXEN*.pcx
 STRIFE*.pcx
 
+autom4te.cache
+autotools
+configure
+Makefile
+aclocal.m4
+config.hin
+*.o
+*.a
+Makefile.in
+*.wasm
+*.wasm.map
+*.js
+*.html
+*.html.symbols
+config.h
+config.log
+config.status
+stamp-h1
+clean
+.githelp
+
+
 # CMake-specific ignores
 /.vs
 /build*

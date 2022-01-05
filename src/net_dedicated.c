@@ -13,7 +13,7 @@
 //
 //
 // Dedicated server code.
-// 
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,32 +26,28 @@
 #include "m_argv.h"
 
 #include "net_common.h"
-#include "net_sdl.h"
 #include "net_server.h"
+#include "net_websockets.h"
 
-// 
+//
 // People can become confused about how dedicated servers work.  Game
 // options are specified to the controlling player who is the first to
 // join a game.  Bomb out with an error message if game options are
 // specified to a dedicated server.
 //
 
-static const char *not_dedicated_options[] =
-{
-    "-deh", "-iwad", "-cdrom", "-gameversion", "-nomonsters", "-respawn",
-    "-fast", "-altdeath", "-deathmatch", "-turbo", "-merge", "-af", "-as",
-    "-aa", "-file", "-wart", "-skill", "-episode", "-timer", "-avg", "-warp",
-    "-loadgame", "-longtics", "-extratics", "-dup", "-shorttics", NULL,
+static const char *not_dedicated_options[] = {
+    "-deh",   "-iwad",  "-cdrom", "-gameversion", "-nomonsters", "-respawn",   "-fast", "-altdeath",  "-deathmatch",
+    "-turbo", "-merge", "-af",    "-as",          "-aa",         "-file",      "-wart", "-skill",     "-episode",
+    "-timer", "-avg",   "-warp",  "-loadgame",    "-longtics",   "-extratics", "-dup",  "-shorttics", NULL,
 };
 
 static void CheckForClientOptions(void)
 {
     int i;
 
-    for (i=0; not_dedicated_options[i] != NULL; ++i)
-    {
-        if (M_CheckParm(not_dedicated_options[i]) > 0)
-        {
+    for (i = 0; not_dedicated_options[i] != NULL; ++i) {
+        if (M_CheckParm(not_dedicated_options[i]) > 0) {
             I_Error("The command line parameter '%s' was specified to a "
                     "dedicated server.\nGame parameters should be specified "
                     "to the first player to join a server, \nnot to the "
@@ -67,11 +63,9 @@ void NET_DedicatedServer(void)
 
     NET_OpenLog();
     NET_SV_Init();
-    NET_SV_AddModule(&net_sdl_module);
-    NET_SV_RegisterWithMaster();
+    NET_SV_AddModule(&net_websockets_module);
 
-    while (true)
-    {
+    while (true) {
         NET_SV_Run();
         // TODO: Block on socket instead of polling.
         I_Sleep(1);

@@ -22,15 +22,17 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h> // [crispy] time_t, time(), struct tm, localtime()
-
+#include <emscripten.h>
+#include <emscripten/html5.h>
 #include "config.h"
 #include "deh_main.h"
 #include "doomdef.h"
 #include "doomstat.h"
-
+#include "debug.h"
 #include "dstrings.h"
 #include "sounds.h"
 

@@ -1,22 +1,9 @@
 
-SUBDIRS = doom heretic setup # hexen strife
+SUBDIRS = doom
 
 execgamesdir = ${bindir}
 
-execgames_PROGRAMS = @PROGRAM_PREFIX@doom     \
-                     @PROGRAM_PREFIX@heretic  \
-                     @PROGRAM_PREFIX@server
-EXTRA_PROGRAMS =     @PROGRAM_PREFIX@hexen    \
-                     @PROGRAM_PREFIX@strife
-
-noinst_PROGRAMS = @PROGRAM_PREFIX@setup
-
-SETUP_BINARIES = @PROGRAM_PREFIX@doom-setup$(EXEEXT)    \
-                 @PROGRAM_PREFIX@heretic-setup$(EXEEXT)
-#                @PROGRAM_PREFIX@hexen-setup$(EXEEXT)   \
-#                @PROGRAM_PREFIX@strife-setup$(EXEEXT)
-
-execgames_SCRIPTS = $(SETUP_BINARIES)
+execgames_PROGRAMS = @PROGRAM_PREFIX@doom
 
 AM_CFLAGS = -I$(top_srcdir)/textscreen            \
             -I$(top_srcdir)/opl                   \
@@ -74,6 +61,7 @@ i_glob.c             i_glob.h              \
 i_input.c            i_input.h             \
 i_joystick.c         i_joystick.h          \
                      i_swap.h              \
+i_midipipe.c         i_midipipe.h          \
 i_musicpack.c                              \
 i_oplmusic.c                               \
 i_pcsound.c                                \
@@ -98,6 +86,7 @@ net_defs.h                                 \
 net_gui.c            net_gui.h             \
 net_io.c             net_io.h              \
 net_loop.c           net_loop.h            \
+net_websockets.c     net_websockets.h      \
 net_packet.c         net_packet.h          \
 net_petname.c        net_petname.h         \
 net_query.c          net_query.h           \
@@ -219,55 +208,9 @@ endif
 
 EXTRA_DIST =                        \
         CMakeLists.txt              \
-        icon.c                      \
-        Doom_Screensaver.desktop.in \
-        manifest.xml
+        icon.c                      
 
-metainfodir = $(prefix)/share/metainfo
-metainfo_DATA =                             \
-        @PACKAGE_RDNS@.Doom.metainfo.xml    \
-        @PACKAGE_RDNS@.Heretic.metainfo.xml
-#       @PACKAGE_RDNS@.Hexen.metainfo.xml   \
-#       @PACKAGE_RDNS@.Strife.metainfo.xml
-
-@PACKAGE_RDNS@.Doom.metainfo.xml : Doom.metainfo.xml
-	cp Doom.metainfo.xml $@
-
-@PACKAGE_RDNS@.Heretic.metainfo.xml : Heretic.metainfo.xml
-	cp Heretic.metainfo.xml $@
-
-@PACKAGE_RDNS@.Hexen.metainfo.xml : Hexen.metainfo.xml
-	cp Hexen.metainfo.xml $@
-
-@PACKAGE_RDNS@.Strife.metainfo.xml : Strife.metainfo.xml
-	cp Strife.metainfo.xml $@
-
-appdir = $(prefix)/share/applications
-app_DATA =                                 \
-           @PACKAGE_RDNS@.Doom.desktop    \
-           @PACKAGE_RDNS@.Heretic.desktop
-#          @PACKAGE_RDNS@.Hexen.desktop   \
-#          @PACKAGE_RDNS@.Strife.desktop
-
-@PACKAGE_RDNS@.Doom.desktop : Doom.desktop
-	cp Doom.desktop $@
-
-@PACKAGE_RDNS@.Heretic.desktop : Heretic.desktop
-	cp Heretic.desktop $@
-
-@PACKAGE_RDNS@.Hexen.desktop : Hexen.desktop
-	cp Hexen.desktop $@
-
-@PACKAGE_RDNS@.Strife.desktop : Strife.desktop
-	cp Strife.desktop $@
-
-screensaverdir = $(prefix)/share/applications/screensavers
-screensaver_DATA = @PACKAGE_RDNS@.Doom_Screensaver.desktop
-
-@PACKAGE_RDNS@.Doom_Screensaver.desktop: Doom_Screensaver.desktop
-	cp Doom_Screensaver.desktop $@
-
-CLEANFILES = $(execgames_SCRIPTS) $(app_DATA) $(screensaver_DATA)
+CLEANFILES = $(execgames_SCRIPTS)
 
 .rc.o:
 	$(WINDRES) $< -o $@

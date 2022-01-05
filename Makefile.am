@@ -11,14 +11,6 @@ CMAKE_FILES=                                   \
         cmake/Findsamplerate.cmake             \
         cmake/config.h.cin
 
-DOC_FILES=                              \
-        COPYING.md                      \
-        README.md                       \
-        README.Music.md                 \
-        NEWS.md                         \
-        PHILOSOPHY.md                   \
-        ChangeLog
-
 EXTRA_DIST=                             \
         $(AUX_DIST_GEN)                 \
         $(CMAKE_FILES)

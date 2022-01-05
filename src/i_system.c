@@ -15,10 +15,9 @@
 // DESCRIPTION:
 //
 
-
-
-#include <stdlib.h>
+#include <emscripten/emscripten.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <stdarg.h>
@@ -36,13 +35,13 @@
 
 #include "deh_str.h"
 #include "doomtype.h"
-#include "m_argv.h"
-#include "m_config.h"
-#include "m_misc.h"
 #include "i_joystick.h"
 #include "i_sound.h"
 #include "i_timer.h"
 #include "i_video.h"
+#include "m_argv.h"
+#include "m_config.h"
+#include "m_misc.h"
 
 #include "i_system.h"
 
@@ -55,8 +54,7 @@
 
 typedef struct atexit_listentry_s atexit_listentry_t;
 
-struct atexit_listentry_s
-{
+struct atexit_listentry_s {
     atexit_func_t func;
     boolean run_on_error;
     atexit_listentry_t *next;
@@ -140,13 +138,11 @@ byte *I_ZoneBase (int *size)
 
     p = M_CheckParmWithArgs("-mb", 1);
 
-    if (p > 0)
-    {
-        default_ram = atoi(myargv[p+1]);
+    if (p > 0) {
+        default_ram = atoi(myargv[p + 1]);
         min_ram = default_ram;
     }
-    else
-    {
+    else {
         default_ram = DEFAULT_RAM;
         min_ram = MIN_RAM;
     }
@@ -260,7 +256,8 @@ void I_Quit (void)
 
     SDL_Quit();
 
-    exit(0);
+    emscripten_cancel_main_loop();
+    emscripten_force_exit(0);
 }
 
 

@@ -31,17 +31,16 @@
 #include "net_structrw.h"
 
 // connections time out after 30 seconds
-
-#define CONNECTION_TIMEOUT_LEN 30
+// we changed this for websockets
+#define CONNECTION_TIMEOUT_LEN 4
 
 // maximum time between sending packets
 
-#define KEEPALIVE_PERIOD 1
+#define KEEPALIVE_PERIOD 2
 
 // reliable packet that is guaranteed to reach its destination
 
-struct net_reliable_packet_s
-{
+struct net_reliable_packet_s {
     net_packet_t *packet;
     int last_send_time;
     int seq;
@@ -50,8 +49,7 @@ struct net_reliable_packet_s
 
 static FILE *net_debug = NULL;
 
-static void NET_Conn_Init(net_connection_t *conn, net_addr_t *addr,
-                          net_protocol_t protocol)
+static void NET_Conn_Init(net_connection_t *conn, net_addr_t *addr, net_protocol_t protocol)
 {
     conn->last_send_time = -1;
     conn->num_retries = 0;

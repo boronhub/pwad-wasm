@@ -20,7 +20,7 @@ AC_PROG_CC
 AC_PROG_RANLIB
 AC_CHECK_PROG(HAVE_PYTHON, python3, true, false)
 
-OPT_LEVEL=2
+OPT_LEVEL=3
 
 # If this is gcc, we have some options we'd like to turn on.  Turn on 
 # optimisation and debugging symbols.
@@ -31,9 +31,9 @@ then
         CFLAGS="-O$OPT_LEVEL -g $WARNINGS $orig_CFLAGS"
 fi
 
-PKG_CHECK_MODULES(SDL, [sdl2 >= 2.0.7])
-PKG_CHECK_MODULES(SDLMIXER, [SDL2_mixer >= 2.0.2])
-PKG_CHECK_MODULES(SDLNET, [SDL2_net >= 2.0.0])
+# PKG_CHECK_MODULES(SDL, [sdl2 >= 2.0.7])
+# PKG_CHECK_MODULES(SDLMIXER, [SDL2_mixer >= 2.0.2])
+# PKG_CHECK_MODULES(SDLNET, [SDL2_net >= 2.0.0])
 
 # Check for bash-completion.
 AC_ARG_ENABLE([bash-completion],
@@ -234,39 +234,14 @@ AC_DEFUN([AC_DATAROOTDIR_CHECKED])
 
 AC_OUTPUT([
 Makefile
-man/Makefile
-man/bash-completion/Makefile
-man/bash-completion/doom.template
-man/bash-completion/heretic.template
-man/bash-completion/hexen.template
-man/bash-completion/strife.template
 opl/Makefile
 opl/examples/Makefile
 pcsound/Makefile
-pkg/Makefile
-pkg/config.make
-pkg/osx/Info.plist
-rpm.spec
 data/Makefile
 src/Makefile
-src/Doom.metainfo.xml
-src/Doom.desktop
-src/Doom_Screensaver.desktop
 src/doom/Makefile
-src/Heretic.metainfo.xml
-src/Heretic.desktop
-src/heretic/Makefile
-src/Hexen.metainfo.xml
-src/Hexen.desktop
-src/hexen/Makefile
 src/resource.rc
 src/setup-res.rc
-src/setup/Makefile
-src/setup/Setup.desktop
-src/setup/setup-manifest.xml
-src/Strife.metainfo.xml
-src/Strife.desktop
-src/strife/Makefile
 textscreen/Makefile
 textscreen/examples/Makefile
 textscreen/fonts/Makefile

@@ -15,13 +15,14 @@
 // DESCRIPTION:  none
 //
 
-
-
+#include <emscripten/websocket.h>
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include "doomdef.h" 
+#include "doomdef.h"
 #include "doomkeys.h"
 #include "doomstat.h"
 
@@ -562,6 +563,15 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         {
             look = TOCENTER;
             kbdlookctrl = 0;
+        }
+    }
+    if (gamekeydown[key_fullscreen]) {
+        EmscriptenFullscreenChangeEvent fsce;
+        emscripten_get_fullscreen_status(&fsce);
+        if (!fsce.isFullscreen) {
+            printf("doom: 11, entering fullscreen");
+            emscripten_request_fullscreen("#canvas", 1);
+            emscripten_sleep(1000);
         }
     }
 
@@ -2077,24 +2087,22 @@ void G_WorldDone (void)
     }
 } 
  
-void G_DoWorldDone (void) 
-{        
-    gamestate = GS_LEVEL; 
-    gamemap = wminfo.next+1; 
-    G_DoLoadLevel (); 
-    gameaction = ga_nothing; 
-    viewactive = true; 
-} 
- 
 
+void G_DoWorldDone(void)
+{
+    gamestate = GS_LEVEL;
+    gamemap = wminfo.next + 1;
+    G_DoLoadLevel();
+    gameaction = ga_nothing;
+    viewactive = true;
+}
 
 //
 // G_InitFromSavegame
-// Can be called by the startup code or the menu task. 
+// Can be called by the startup code or the menu task.
 //
 extern boolean setsizeneeded;
-void R_ExecuteSetViewSize (void);
-
+void R_ExecuteSetViewSize(void);
 
 void G_LoadGame (char* name) 
 { 
